@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.ReadOnlyFileSystemException;
 
 import javax.swing.JButton;
@@ -24,6 +25,7 @@ import java.awt.Insets;
 import javax.swing.JTextField;
 
 import utils.Files;
+import javax.swing.JTextPane;
 
 public class MainWindow extends JFrame {
 
@@ -36,7 +38,6 @@ public class MainWindow extends JFrame {
 	private JLabel lblAssunto;
 	private JTextField tfAssunto;
 	private JLabel lblMensagem;
-	private JTextField textField;
 
 	/**
 	 * Launch the application.
@@ -59,7 +60,7 @@ public class MainWindow extends JFrame {
 	 */
 	public MainWindow() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 681, 396);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -106,7 +107,7 @@ public class MainWindow extends JFrame {
 		tfUltimo.setColumns(10);
 		
 		JButton btnEnviarEmail = new JButton("Enviar email");
-		btnEnviarEmail.setBounds(284, 229, 117, 29);
+		btnEnviarEmail.setBounds(280, 306, 117, 29);
 		contentPane.add(btnEnviarEmail);
 		
 		lblAssunto = new JLabel("Assunto:");
@@ -122,20 +123,20 @@ public class MainWindow extends JFrame {
 		lblMensagem.setBounds(196, 97, 76, 16);
 		contentPane.add(lblMensagem);
 		
-		textField = new JTextField();
-		textField.setBounds(280, 92, 151, 125);
-		contentPane.add(textField);
-		textField.setColumns(10);
+		JTextPane tpMensagem = new JTextPane();
+		tpMensagem.setBounds(280, 100, 261, 178);
+		contentPane.add(tpMensagem);
 		
 		btnNovaConta.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				String text = null;
 				
 				try {
-					Files.readFile("as");
-				} catch (FileNotFoundException e1) {
+					text = Files.readFile("emailBody.txt");
+				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -147,7 +148,13 @@ public class MainWindow extends JFrame {
 				tfMulta.setText(totals[1]);
 				tfDividido.setText(totals[2]);
 				
+				text = text.replace("*total*", totals[0]);
+				text = text.replace("*dividido*", totals[2]);
+				text = text.replace("*multado*", totals[3]);
+				text = text.replace("*ultimo*", tfUltimo.getText());
+				text = text.replace("*data*", totals[4]);
 				
+				tpMensagem.setText(text);
 			}
 		});
 		

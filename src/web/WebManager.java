@@ -27,13 +27,17 @@ public class WebManager {
 		String[] s2 = getConta("58292", "16");
 		System.out.println(s1[0] + " " + s2[0]);
 		
-		String[] totals = new String[3];
+		String[] totals = new String[5];
 		totals[0] = String.valueOf(round(Double.valueOf(s1[0].replace(",", ".")) + Double.valueOf(s2[0].replace(",", ".")))).replace(".", ",");
 		totals[1] = String.valueOf(round(Double.valueOf(s1[1].replace(",", ".")) + Double.valueOf(s2[1].replace(",", ".")))).replace(".", ",");
 		totals[2] = String.valueOf(round(Double.valueOf(s1[2].replace(",", ".")) + Double.valueOf(s2[2].replace(",", ".")))).replace(".", ",");
+		totals[3] = String.valueOf(round(Double.valueOf(totals[1].replace(",", ".")) + Double.valueOf(totals[2].replace(",", ".")))).replace(".", ",");
+		totals[4] = findVencimento(s1[3], s2[3]);
 		System.out.println(totals[0]);
 		System.out.println(totals[1]);
 		System.out.println(totals[2]);
+		System.out.println(totals[3]);
+		System.out.println(totals[4]);
 		
 		return totals;
 	}
@@ -72,15 +76,18 @@ public class WebManager {
 	    		multaValue = driver.findElement(By.xpath("//table[@id='Table6']/tbody/tr[4]/td[6]")).getText();
 	    }
 	    
+	    String vencimento = driver.findElement(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[2]/div")).getText();
+	    
 	    System.out.println(multaValue);
 		
 		driver.close();
 		driver.switchTo().window(winHandleBefore).close();
 		
-		String[] values = new String[3];
+		String[] values = new String[4];
 		values[0] = total;
 		values[1] = multaValue;
 		values[2] = calculateShare(total, 15, multaValue);
+		values[3] = vencimento;
 		
 		return values;
 	}
@@ -119,6 +126,22 @@ public class WebManager {
 		WebDriver driver = new FirefoxDriver(options);
 		
 		return driver;
+	}
+	
+	String findVencimento(String venc1, String venc2) {
+		String[] v1 = venc1.split("/");
+		String[] v2 = venc2.split("/");
+		
+		int mes1 = Integer.valueOf(v1[1]);
+		int mes2 = Integer.valueOf(v2[1]);
+		int dia1 = Integer.valueOf(v1[0]);
+		int dia2 = Integer.valueOf(v2[0]);
+		
+		if(mes1 > mes2) return venc1;
+		if(mes1 < mes2) return venc2;
+		
+		if(dia1 > dia2) return venc1;
+		return venc2;
 	}
 
 }
