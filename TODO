@@ -1,0 +1,30 @@
+Selecionar o pagador da multa
+	Ao enviar, salvar o nome em um arquivo e usá-lo como padrão para a próxima vez que o programa abrir
+
+Envio de email
+	Uzar API da Google (Muito dificil)
+	Usar SendEmail e executar direto do terminal
+		https://stackoverflow.com/questions/5604698/java-programming-call-an-exe-from-java-and-passing-parameters
+
+Salvar PDF da conta
+Guardar informações das contas em um arquivo(total, multa, dividido) caso nao dê
+
+Alterar quantidade de moradores
+	Salvar em um arquivo
+	Campo de texto
+
+Alterar quantidade de registros / Alterar CDC e DV dos registros
+	Fazer um arquivo com as informações e ler ao executar (mesmo do numero de moradores)
+		Modelo:
+			2 (Quantidade de registros)
+			18449;79 (CDC;DV)
+			58292;16
+	Fazer a auteração do arquivo direto pela aplicação
+		Criar uma tela para editar e salvar
+
+######################################
+
+	F U T U R O
+-> Linkar com um app para atualizar quem já pagou
+-> Mandar o email direto do app
+-> Conta de luz?
