@@ -5,11 +5,12 @@ import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -20,8 +21,8 @@ public class WebManager {
 	}
 	
 
-	@Test
-	public void main() {
+	public String[] getTotals() {
+		
 		String[] s1 = getConta("18449", "79");
 		String[] s2 = getConta("58292", "16");
 		System.out.println(s1[0] + " " + s2[0]);
@@ -33,10 +34,12 @@ public class WebManager {
 		System.out.println(totals[0]);
 		System.out.println(totals[1]);
 		System.out.println(totals[2]);
+		
+		return totals;
 	}
 	
 	String[] getConta(String cdc, String dv){
-		WebDriver driver = new FirefoxDriver();
+		WebDriver driver = getFirefoxDriver();
 		
 		driver.get("http://aguaconta.cebinet.com.br/aguasc/");
 		WebElement tCdc = driver.findElement(By.id("tCDC"));
@@ -106,6 +109,16 @@ public class WebManager {
 		double tot = Double.valueOf(total) - Double.valueOf(multa);
 
 	    return String.valueOf(round(tot/(n*1.0))).replace(".", ",");
+	}
+	
+	WebDriver getFirefoxDriver() {
+		FirefoxBinary binary = new FirefoxBinary();
+		binary.addCommandLineOptions("--headless");
+		FirefoxOptions options = new FirefoxOptions();
+		options.setBinary(binary);
+		WebDriver driver = new FirefoxDriver(options);
+		
+		return driver;
 	}
 
 }
