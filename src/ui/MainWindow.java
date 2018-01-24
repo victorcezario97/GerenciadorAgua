@@ -9,6 +9,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
+import java.nio.file.ReadOnlyFileSystemException;
 
 import javax.swing.JButton;
 
@@ -21,12 +23,20 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JTextField;
 
+import utils.Files;
+
 public class MainWindow extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField tfTotal;
 	private JTextField tfDividido;
 	private JTextField tfMulta;
+	private JLabel lbUltimo;
+	private JTextField tfUltimo;
+	private JLabel lblAssunto;
+	private JTextField tfAssunto;
+	private JLabel lblMensagem;
+	private JTextField textField;
 
 	/**
 	 * Launch the application.
@@ -56,7 +66,7 @@ public class MainWindow extends JFrame {
 		contentPane.setLayout(null);
 		
 		JButton btnNovaConta = new JButton("Nova Conta");
-		btnNovaConta.setBounds(6, 6, 103, 29);
+		btnNovaConta.setBounds(32, 141, 103, 29);
 		contentPane.add(btnNovaConta);
 		
 		JLabel lblTotal = new JLabel("Total:");
@@ -86,17 +96,67 @@ public class MainWindow extends JFrame {
 		tfMulta.setBounds(68, 64, 90, 26);
 		contentPane.add(tfMulta);
 		
+		lbUltimo = new JLabel("Último a pagar:");
+		lbUltimo.setBounds(170, 41, 102, 16);
+		contentPane.add(lbUltimo);
+		
+		tfUltimo = new JTextField();
+		tfUltimo.setBounds(280, 36, 130, 26);
+		contentPane.add(tfUltimo);
+		tfUltimo.setColumns(10);
+		
+		JButton btnEnviarEmail = new JButton("Enviar email");
+		btnEnviarEmail.setBounds(284, 229, 117, 29);
+		contentPane.add(btnEnviarEmail);
+		
+		lblAssunto = new JLabel("Assunto:");
+		lblAssunto.setBounds(211, 69, 61, 16);
+		contentPane.add(lblAssunto);
+		
+		tfAssunto = new JTextField();
+		tfAssunto.setColumns(10);
+		tfAssunto.setBounds(280, 64, 130, 26);
+		contentPane.add(tfAssunto);
+		
+		lblMensagem = new JLabel("Mensagem:");
+		lblMensagem.setBounds(196, 97, 76, 16);
+		contentPane.add(lblMensagem);
+		
+		textField = new JTextField();
+		textField.setBounds(280, 92, 151, 125);
+		contentPane.add(textField);
+		textField.setColumns(10);
+		
 		btnNovaConta.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				
+				try {
+					Files.readFile("as");
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				WebManager w = new WebManager();
 				String[] totals = w.getTotals();
 				
 				tfTotal.setText(totals[0]);
 				tfMulta.setText(totals[1]);
 				tfDividido.setText(totals[2]);
+				
+				
+			}
+		});
+		
+		btnEnviarEmail.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 	}
