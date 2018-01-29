@@ -14,6 +14,8 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import utils.Utils;
+
 public class WebManager {
 	
 	public WebManager() {
@@ -28,10 +30,10 @@ public class WebManager {
 		System.out.println(s1[0] + " " + s2[0]);
 		
 		String[] totals = new String[5];
-		totals[0] = String.valueOf(round(Double.valueOf(s1[0].replace(",", ".")) + Double.valueOf(s2[0].replace(",", ".")))).replace(".", ",");
-		totals[1] = String.valueOf(round(Double.valueOf(s1[1].replace(",", ".")) + Double.valueOf(s2[1].replace(",", ".")))).replace(".", ",");
-		totals[2] = String.valueOf(round(Double.valueOf(s1[2].replace(",", ".")) + Double.valueOf(s2[2].replace(",", ".")))).replace(".", ",");
-		totals[3] = String.valueOf(round(Double.valueOf(totals[1].replace(",", ".")) + Double.valueOf(totals[2].replace(",", ".")))).replace(".", ",");
+		totals[0] = String.valueOf(Utils.round(Double.valueOf(s1[0].replace(",", ".")) + Double.valueOf(s2[0].replace(",", ".")))).replace(".", ",");
+		totals[1] = String.valueOf(Utils.round(Double.valueOf(s1[1].replace(",", ".")) + Double.valueOf(s2[1].replace(",", ".")))).replace(".", ",");
+		totals[2] = String.valueOf(Utils.round(Double.valueOf(s1[2].replace(",", ".")) + Double.valueOf(s2[2].replace(",", ".")))).replace(".", ",");
+		totals[3] = String.valueOf(Utils.round(Double.valueOf(totals[1].replace(",", ".")) + Double.valueOf(totals[2].replace(",", ".")))).replace(".", ",");
 		totals[4] = findVencimento(s1[3], s2[3]);
 		System.out.println(totals[0]);
 		System.out.println(totals[1]);
@@ -58,8 +60,8 @@ public class WebManager {
 		WebElement myDynamicElement = (new WebDriverWait(driver, 10)).until(ExpectedConditions.presenceOfElementLocated(By.id("hlConta")));
 		driver.findElement(By.id("hlConta")).click();
 		
-		myDynamicElement = (new WebDriverWait(driver, 30)).until(ExpectedConditions.presenceOfElementLocated(By.linkText(findDate())));
-		driver.findElement(By.linkText(findDate())).click();
+		myDynamicElement = (new WebDriverWait(driver, 30)).until(ExpectedConditions.presenceOfElementLocated(By.linkText(Utils.findDate())));
+		driver.findElement(By.linkText(Utils.findDate())).click();
 		
 		String winHandleBefore = driver.getWindowHandle();
 		
@@ -92,30 +94,12 @@ public class WebManager {
 		return values;
 	}
 	
-	String findDate() {
-		Date date = new Date();
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		
-		int month = cal.get(Calendar.MONTH)+1;
-		int year = cal.get(Calendar.YEAR);
-		
-		if(month < 10) return "0" + String.valueOf(month) + "/" + String.valueOf(year);
-		return String.valueOf(month) + "/" + String.valueOf(year);
-	}
-	
-	double round(double n) {
-		BigDecimal bd = new BigDecimal(n);
-	    bd = bd.setScale(2, RoundingMode.HALF_UP);
-	    return bd.doubleValue();
-	}
-	
 	String calculateShare(String total, int n, String multa) {
 		total = total.replace(",", ".");
 		multa = multa.replace(",", ".");
 		double tot = Double.valueOf(total) - Double.valueOf(multa);
 
-	    return String.valueOf(round(tot/(n*1.0))).replace(".", ",");
+	    return String.valueOf(Utils.round(tot/(n*1.0))).replace(".", ",");
 	}
 	
 	WebDriver getFirefoxDriver() {

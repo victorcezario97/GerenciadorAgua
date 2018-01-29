@@ -1,5 +1,5 @@
 Ficou R$*total* no total e R$*dividido* pra cada um, menos o premiado *ultimo*, que ficou com R$*multado*.
-Pagar até dia *data*.
+Pagar ate dia *data*.
 
 Ag.: 6845-4 
 c/c: 21.232-6

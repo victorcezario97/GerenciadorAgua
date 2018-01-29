@@ -15,6 +15,7 @@ import java.nio.file.ReadOnlyFileSystemException;
 
 import javax.swing.JButton;
 
+import web.SendEmail;
 import web.WebManager;
 import javax.swing.JLabel;
 import java.awt.FlowLayout;
@@ -25,6 +26,8 @@ import java.awt.Insets;
 import javax.swing.JTextField;
 
 import utils.Files;
+import utils.Utils;
+
 import javax.swing.JTextPane;
 
 public class MainWindow extends JFrame {
@@ -155,6 +158,7 @@ public class MainWindow extends JFrame {
 				text = text.replace("*data*", totals[4]);
 				
 				tpMensagem.setText(text);
+				tfAssunto.setText("Agua " + Utils.getMonthString());
 			}
 		});
 		
@@ -162,8 +166,16 @@ public class MainWindow extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				
+				String from = "victorscezario97@gmail.com";
+				String password = "kartoffel97";
+				String to = "victorscezario@hotmail.com";
+				String subject = tfAssunto.getText();
+				try {
+					SendEmail.send(tpMensagem.getText(), from, password, to, subject);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 	}
