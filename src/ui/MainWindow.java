@@ -1,37 +1,39 @@
 package ui;
 
-import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import java.awt.GridLayout;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.ReadOnlyFileSystemException;
 
 import javax.swing.JButton;
 
 import web.SendEmail;
 import web.WebManager;
 import javax.swing.JLabel;
-import java.awt.FlowLayout;
-import javax.swing.SwingConstants;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+import javax.swing.JOptionPane;
+
 import javax.swing.JTextField;
 
 import utils.Files;
 import utils.Utils;
 
 import javax.swing.JTextPane;
+import javax.swing.JProgressBar;
 
 public class MainWindow extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField tfTotal;
 	private JTextField tfDividido;
@@ -41,6 +43,7 @@ public class MainWindow extends JFrame {
 	private JLabel lblAssunto;
 	private JTextField tfAssunto;
 	private JLabel lblMensagem;
+	private JProgressBar pb;
 
 	/**
 	 * Launch the application.
@@ -130,27 +133,37 @@ public class MainWindow extends JFrame {
 		tpMensagem.setBounds(280, 100, 261, 178);
 		contentPane.add(tpMensagem);
 		
+		pb = new JProgressBar(0, 100);
+		pb.setBounds(16, 196, 195, 45);
+		contentPane.add(pb);
+		
 		btnNovaConta.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
+				btnEnviarEmail.setEnabled(false);
+				btnNovaConta.setEnabled(false);
+				
 				String text = null;
 				
 				try {
 					text = Files.readFile("emailBody.txt");
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					JOptionPane.showMessageDialog(contentPane, "Email body file not found.", "File Warning", JOptionPane.WARNING_MESSAGE);
 				}
 				
-				WebManager w = new WebManager();
-				String[] totals = w.getTotals();
+				contentPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				
+				WebManager w = new WebManager(pb);
+				//w.start();
+				String[] totals = w.start();
 				
 				tfTotal.setText(totals[0]);
 				tfMulta.setText(totals[1]);
 				tfDividido.setText(totals[2]);
-				
+
 				text = text.replace("*total*", totals[0]);
 				text = text.replace("*dividido*", totals[2]);
 				text = text.replace("*multado*", totals[3]);
@@ -159,6 +172,11 @@ public class MainWindow extends JFrame {
 				
 				tpMensagem.setText(text);
 				tfAssunto.setText("Agua " + Utils.getMonthString());
+
+				btnEnviarEmail.setEnabled(true);
+				btnNovaConta.setEnabled(true);
+				
+				contentPane.setCursor(Cursor.getDefaultCursor());
 			}
 		});
 		
@@ -166,6 +184,7 @@ public class MainWindow extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				contentPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				String from = "victorscezario97@gmail.com";
 				String password = "kartoffel97";
 				String to = "victorscezario@hotmail.com";
@@ -175,8 +194,15 @@ public class MainWindow extends JFrame {
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+					JOptionPane.showMessageDialog(contentPane, "An error occurred while sending the e-mail.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				}
+				
+				contentPane.setCursor(Cursor.getDefaultCursor());
 			}
 		});
+	}
+	
+	public void setProgressBar(int progress) {
+		pb.setValue(progress);
 	}
 }

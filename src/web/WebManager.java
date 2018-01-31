@@ -1,131 +1,95 @@
 package web;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Calendar;
-import java.util.Date;
+import javax.swing.JProgressBar;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxBinary;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
+import utils.ProgressBarFiller;
 import utils.Utils;
 
-public class WebManager {
+public class WebManager{
 	
-	public WebManager() {
+	JProgressBar pb;
+	public int progress;
+	private ContaGetter cg1, cg2;
+	private String[] s1 = null, s2 = null;
+	
+	public WebManager(JProgressBar pb) {
+		this.pb = pb;
+		progress = 0;
+	}
+	
+	public int getProgress() {
+		return progress;
+	}
+	
+	private void startProgressBars() {
+		cg1 = new ContaGetter("18449", "79", s1);
+		cg2 = new ContaGetter("58292", "16", s2);
+		ProgressBarFiller pbf1 = new ProgressBarFiller(cg1);
+		ProgressBarFiller pbf2 = new ProgressBarFiller(cg2);
+		pbf1.start();
+		pbf2.start();
+	}
+	
+	public String[] start() {
+		startProgressBars();
 		
+		return getTotals();
 	}
 	
 
 	public String[] getTotals() {
 		
-		String[] s1 = getConta("18449", "79");
-		String[] s2 = getConta("58292", "16");
+		boolean done1 = false, done2 = false;
+		
+		/*ContaGetter cg1 = new ContaGetter("18449", "79", s1);
+		ContaGetter cg2 = new ContaGetter("58292", "16", s2);
+		ProgressBarFiller pbf1 = new ProgressBarFiller(cg1);
+		ProgressBarFiller pbf2 = new ProgressBarFiller(cg2);
+		pbf1.start();
+		pbf2.start();*/
+		
+		
+		cg1.start();
+		
+
+		cg2.start();
+		
+		
+		
+		while(!done1 & !done2) {
+			done1 = cg1.getDone();
+			done2 = cg2.getDone();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println(done1 + " " + done2);
+		}
+		
+		//s1 = cg1.getInfo();
+		//s2 = cg2.getInfo();
+		
+		//cg1.setStop(true);
+		//cg2.setStop(true);
+		
+		progress = 100;
 		System.out.println(s1[0] + " " + s2[0]);
 		
-		String[] totals = new String[5];
+		String[] totals = new String[5];/*
 		totals[0] = String.valueOf(Utils.round(Double.valueOf(s1[0].replace(",", ".")) + Double.valueOf(s2[0].replace(",", ".")))).replace(".", ",");
 		totals[1] = String.valueOf(Utils.round(Double.valueOf(s1[1].replace(",", ".")) + Double.valueOf(s2[1].replace(",", ".")))).replace(".", ",");
 		totals[2] = String.valueOf(Utils.round(Double.valueOf(s1[2].replace(",", ".")) + Double.valueOf(s2[2].replace(",", ".")))).replace(".", ",");
 		totals[3] = String.valueOf(Utils.round(Double.valueOf(totals[1].replace(",", ".")) + Double.valueOf(totals[2].replace(",", ".")))).replace(".", ",");
-		totals[4] = findVencimento(s1[3], s2[3]);
+		//totals[4] = findVencimento(s1[3], s2[3]);
+		totals[4] = "testemeu";
 		System.out.println(totals[0]);
 		System.out.println(totals[1]);
 		System.out.println(totals[2]);
 		System.out.println(totals[3]);
 		System.out.println(totals[4]);
-		
+		*/
 		return totals;
 	}
-	
-	String[] getConta(String cdc, String dv){
-		WebDriver driver = getFirefoxDriver();
-		
-		driver.get("http://aguaconta.cebinet.com.br/aguasc/");
-		WebElement tCdc = driver.findElement(By.id("tCDC"));
-		WebElement tDv = driver.findElement(By.id("tDV"));
-		
-		tCdc.sendKeys(cdc);
-		tDv.sendKeys(dv);
-		
-		driver.findElement(By.id("tIr")).click();
-		
-		@SuppressWarnings("unused")
-		WebElement myDynamicElement = (new WebDriverWait(driver, 10)).until(ExpectedConditions.presenceOfElementLocated(By.id("hlConta")));
-		driver.findElement(By.id("hlConta")).click();
-		
-		myDynamicElement = (new WebDriverWait(driver, 30)).until(ExpectedConditions.presenceOfElementLocated(By.linkText(Utils.findDate())));
-		driver.findElement(By.linkText(Utils.findDate())).click();
-		
-		String winHandleBefore = driver.getWindowHandle();
-		
-		for(String winHandle : driver.getWindowHandles()) {
-			driver.switchTo().window(winHandle);
-		}
-	   
-		myDynamicElement = (new WebDriverWait(driver, 30)).until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[4]/div")));
-	    String total = driver.findElement(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[4]/div")).getText();
-	    String multaText = "Multa por atraso";
-	    String multaValue = null;
-	    
-	    if(driver.getPageSource().contains(multaText)) {
-	    		multaValue = driver.findElement(By.xpath("//table[@id='Table6']/tbody/tr[4]/td[6]")).getText();
-	    }
-	    
-	    String vencimento = driver.findElement(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[2]/div")).getText();
-	    
-	    System.out.println(multaValue);
-		
-		driver.close();
-		driver.switchTo().window(winHandleBefore).close();
-		
-		String[] values = new String[4];
-		values[0] = total;
-		values[1] = multaValue;
-		values[2] = calculateShare(total, 15, multaValue);
-		values[3] = vencimento;
-		
-		return values;
-	}
-	
-	String calculateShare(String total, int n, String multa) {
-		total = total.replace(",", ".");
-		multa = multa.replace(",", ".");
-		double tot = Double.valueOf(total) - Double.valueOf(multa);
-
-	    return String.valueOf(Utils.round(tot/(n*1.0))).replace(".", ",");
-	}
-	
-	WebDriver getFirefoxDriver() {
-		FirefoxBinary binary = new FirefoxBinary();
-		binary.addCommandLineOptions("--headless");
-		FirefoxOptions options = new FirefoxOptions();
-		options.setBinary(binary);
-		WebDriver driver = new FirefoxDriver(options);
-		
-		return driver;
-	}
-	
-	String findVencimento(String venc1, String venc2) {
-		String[] v1 = venc1.split("/");
-		String[] v2 = venc2.split("/");
-		
-		int mes1 = Integer.valueOf(v1[1]);
-		int mes2 = Integer.valueOf(v2[1]);
-		int dia1 = Integer.valueOf(v1[0]);
-		int dia2 = Integer.valueOf(v2[0]);
-		
-		if(mes1 > mes2) return venc1;
-		if(mes1 < mes2) return venc2;
-		
-		if(dia1 > dia2) return venc1;
-		return venc2;
-	}
-
 }
