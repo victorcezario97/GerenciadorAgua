@@ -1,6 +1,7 @@
 package web;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxBinary;
@@ -9,6 +10,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import utils.ProgressBarFiller;
 import utils.Utils;
 
 public class ContaGetter implements Runnable{
@@ -19,6 +21,7 @@ public class ContaGetter implements Runnable{
 	private boolean done;
 	private boolean stop;
 	private int progress;
+	private ProgressBarFiller pbf;
 	
 	public int getProgress() {
 		return progress;
@@ -42,11 +45,19 @@ public class ContaGetter implements Runnable{
 		this.info = info;
 		done = false;
 		stop = false;
+		//pbf = new ProgressBarFiller(this);
+		//pbf.start();
 	}
 	
 	@Override
-	public void run() {
-		info = getConta(cdc, dv);	
+	public void run() throws TimeoutException{
+		try {
+			info = getConta(cdc, dv);	
+		}catch(TimeoutException ex) {
+			System.out.println("OWWWWWWWWWWWWUWUWUWBUEBUE");
+			throw ex;
+		}
+		System.out.println(info[0]);
 		done = true;
 		while(!stop) {
 			try {
@@ -61,14 +72,19 @@ public class ContaGetter implements Runnable{
 		return;
 	}
 	
-	public void start() {
+	public void start() throws TimeoutException{
 		if(t == null) {
 			t = new Thread(this, "Conta getter thread");
-			t.start();
+			try {
+				t.run();
+			}catch(TimeoutException ex) {
+				System.out.println("UAUAUAUAUAUAUAUAUAUuuuuuuuu");
+				throw ex;
+			}
 		}
 	}
 	
-	String[] getConta(String cdc, String dv){
+	String[] getConta(String cdc, String dv) throws TimeoutException{
 		WebDriver driver = getFirefoxDriver();
 		
 		driver.get("http://aguaconta.cebinet.com.br/aguasc/");
@@ -82,11 +98,31 @@ public class ContaGetter implements Runnable{
 		progress = 10;
 		
 		@SuppressWarnings("unused")
-		WebElement myDynamicElement = (new WebDriverWait(driver, 10)).until(ExpectedConditions.presenceOfElementLocated(By.id("hlConta")));
+		WebDriverWait wait = new WebDriverWait(driver, 30) {
+			@Override
+			protected java.lang.RuntimeException timeoutException(java.lang.String message,
+                    java.lang.Throwable lastException){
+				
+				TimeoutException ex = new TimeoutException();
+				
+				throw ex;
+			}
+		};
+		WebElement myDynamicElement;
+		try {
+			myDynamicElement = (new WebDriverWait(driver, 10)).until(ExpectedConditions.presenceOfElementLocated(By.id("hlConta")));
+		}catch(TimeoutException ex) {
+			throw ex;
+		}
 		driver.findElement(By.id("hlConta")).click();
 		progress = 30;
 		
-		myDynamicElement = (new WebDriverWait(driver, 30)).until(ExpectedConditions.presenceOfElementLocated(By.linkText(Utils.findDate())));
+		try {
+			myDynamicElement = (new WebDriverWait(driver, 5)).until(ExpectedConditions.presenceOfElementLocated(By.linkText(Utils.findDate())));
+		}catch(TimeoutException ex) {
+			System.out.println("OWWWWWWWWW");
+			throw ex;
+		}
 		driver.findElement(By.linkText(Utils.findDate())).click();
 		progress = 50;
 		
@@ -119,6 +155,7 @@ public class ContaGetter implements Runnable{
 		values[2] = calculateShare(total, 15, multaValue);
 		values[3] = vencimento;
 		progress = 100;
+		
 		return values;
 	}
 	
@@ -138,22 +175,6 @@ public class ContaGetter implements Runnable{
 		WebDriver driver = new FirefoxDriver(options);
 		
 		return driver;
-	}
-	
-	String findVencimento(String venc1, String venc2) {
-		String[] v1 = venc1.split("/");
-		String[] v2 = venc2.split("/");
-		
-		int mes1 = Integer.valueOf(v1[1]);
-		int mes2 = Integer.valueOf(v2[1]);
-		int dia1 = Integer.valueOf(v1[0]);
-		int dia2 = Integer.valueOf(v2[0]);
-		
-		if(mes1 > mes2) return venc1;
-		if(mes1 < mes2) return venc2;
-		
-		if(dia1 > dia2) return venc1;
-		return venc2;
 	}
 
 }

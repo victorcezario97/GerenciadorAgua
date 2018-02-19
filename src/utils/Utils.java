@@ -6,6 +6,22 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class Utils {
+	
+	public static String findGreaterDate(String venc1, String venc2) {
+		String[] v1 = venc1.split("/");
+		String[] v2 = venc2.split("/");
+		
+		int mes1 = Integer.valueOf(v1[1]);
+		int mes2 = Integer.valueOf(v2[1]);
+		int dia1 = Integer.valueOf(v1[0]);
+		int dia2 = Integer.valueOf(v2[0]);
+		
+		if(mes1 > mes2) return venc1;
+		if(mes1 < mes2) return venc2;
+		
+		if(dia1 > dia2) return venc1;
+		return venc2;
+	}
 
 	public static String findDate() {
 		Date date = new Date();

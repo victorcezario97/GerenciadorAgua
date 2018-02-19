@@ -158,7 +158,7 @@ public class MainWindow extends JFrame {
 				
 				WebManager w = new WebManager(pb);
 				//w.start();
-				String[] totals = w.start();
+				String[] totals = w.getTotals();
 				
 				tfTotal.setText(totals[0]);
 				tfMulta.setText(totals[1]);
