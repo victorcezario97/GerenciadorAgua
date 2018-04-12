@@ -28,7 +28,7 @@ public class Utils {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		
-		int month = cal.get(Calendar.MONTH)+1;
+		int month = cal.get(Calendar.MONTH);
 		int year = cal.get(Calendar.YEAR);
 		
 		if(month < 10) return "0" + String.valueOf(month) + "/" + String.valueOf(year);
@@ -79,4 +79,11 @@ public class Utils {
 			
 		}
 	}
+	
+//	double getDoubleValue(String str) {
+//		double value;
+//		
+//		str.replace(",", ".");
+//		
+//	}
 }

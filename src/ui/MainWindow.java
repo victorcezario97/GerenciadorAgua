@@ -6,8 +6,6 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,6 +25,9 @@ import utils.Utils;
 
 import javax.swing.JTextPane;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
+import java.awt.Color;
+import java.awt.SystemColor;
 
 public class MainWindow extends JFrame {
 
@@ -43,7 +44,6 @@ public class MainWindow extends JFrame {
 	private JLabel lblAssunto;
 	private JTextField tfAssunto;
 	private JLabel lblMensagem;
-	private JProgressBar pb;
 
 	/**
 	 * Launch the application.
@@ -103,7 +103,7 @@ public class MainWindow extends JFrame {
 		tfMulta.setBounds(68, 64, 90, 26);
 		contentPane.add(tfMulta);
 		
-		lbUltimo = new JLabel("Último a pagar:");
+		lbUltimo = new JLabel("Ultimo a pagar:");
 		lbUltimo.setBounds(170, 41, 102, 16);
 		contentPane.add(lbUltimo);
 		
@@ -133,9 +133,10 @@ public class MainWindow extends JFrame {
 		tpMensagem.setBounds(280, 100, 261, 178);
 		contentPane.add(tpMensagem);
 		
-		pb = new JProgressBar(0, 100);
-		pb.setBounds(16, 196, 195, 45);
-		contentPane.add(pb);
+		JLabel lblConsole = new JLabel();
+		lblConsole.setBackground(SystemColor.control);
+		lblConsole.setBounds(10, 341, 645, 16);
+		contentPane.add(lblConsole);
 		
 		btnNovaConta.addActionListener(new ActionListener() {
 			
@@ -152,13 +153,24 @@ public class MainWindow extends JFrame {
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					JOptionPane.showMessageDialog(contentPane, "Email body file not found.", "File Warning", JOptionPane.WARNING_MESSAGE);
+					btnEnviarEmail.setEnabled(true);
+					btnNovaConta.setEnabled(true);
+					return;
 				}
 				
 				contentPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				
-				WebManager w = new WebManager(pb);
+				WebManager w = new WebManager();
 				//w.start();
 				String[] totals = w.getTotals();
+				if(totals == null) {
+					System.out.println("Caught error");
+					btnEnviarEmail.setEnabled(true);
+					btnNovaConta.setEnabled(true);
+					contentPane.setCursor(Cursor.getDefaultCursor());
+					lblConsole.setText("An error ocurred");
+					return;
+				}
 				
 				tfTotal.setText(totals[0]);
 				tfMulta.setText(totals[1]);
@@ -195,14 +207,13 @@ public class MainWindow extends JFrame {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 					JOptionPane.showMessageDialog(contentPane, "An error occurred while sending the e-mail.", "ERROR", JOptionPane.ERROR_MESSAGE);
+					contentPane.setCursor(Cursor.getDefaultCursor());
+					return;
 				}
 				
+				JOptionPane.showMessageDialog(contentPane, "Email sent succesfully!", "SUCCESS", JOptionPane.INFORMATION_MESSAGE);
 				contentPane.setCursor(Cursor.getDefaultCursor());
 			}
 		});
-	}
-	
-	public void setProgressBar(int progress) {
-		pb.setValue(progress);
 	}
 }

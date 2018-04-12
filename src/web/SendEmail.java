@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 public class SendEmail {
 	
 	public static int send() throws IOException {
-		Process process = new ProcessBuilder("/usr/local/Cellar/sendemail/1.56/bin/sendEmail", "-o", "tls=yes", "-f", "victorscezario97@gmail.com", "-t", "victorscezario@hotmail.com", "-s", "smtp.gmail.com:587", "-xu", "victorscezario97@gmail.com", "-xp", "kartoffel97", "-u", "\"Hello from sendEmail\"", "-m", "\"How are you? I'm testing sendEmail from the command line.\"").start();
+		Process process = new ProcessBuilder("sendEmail.exe", "-o", "tls=yes", "-f", "victorscezario97@gmail.com", "-t", "victorscezario@hotmail.com", "-s", "smtp.gmail.com:587", "-xu", "victorscezario97@gmail.com", "-xp", "kartoffel97", "-u", "\"Hello from sendEmail\"", "-m", "\"How are you? I'm testing sendEmail from the command line.\"").start();
 		InputStream is = process.getInputStream();
 		InputStreamReader isr = new InputStreamReader(is);
 		BufferedReader br = new BufferedReader(isr);
@@ -28,7 +28,7 @@ public class SendEmail {
 	}
 	
 	public static void send(String message, String from, String password, String to, String subject) throws IOException {
-		Process process = new ProcessBuilder("/usr/local/Cellar/sendemail/1.56/bin/sendEmail", "-o", "tls=yes", "-f", from, "-t", to, "-s", "smtp.gmail.com:587", "-xu", from, "-xp", password, "-u", subject, "-m", message).start();
+		Process process = new ProcessBuilder("sendEmail.exe", "-o", "tls=yes", "-f", from, "-t", to, "-s", "smtp.gmail.com:587", "-xu", from, "-xp", password, "-u", subject, "-m", message).start();
 		InputStream is = process.getInputStream();
 		InputStreamReader isr = new InputStreamReader(is);
 		BufferedReader br = new BufferedReader(isr);

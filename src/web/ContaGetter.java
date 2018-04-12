@@ -10,7 +10,6 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import utils.ProgressBarFiller;
 import utils.Utils;
 
 public class ContaGetter implements Runnable{
@@ -20,12 +19,8 @@ public class ContaGetter implements Runnable{
 	private String[] info;
 	private boolean done;
 	private boolean stop;
-	private int progress;
-	private ProgressBarFiller pbf;
-	
-	public int getProgress() {
-		return progress;
-	}
+	private WebManager w;
+	private int n;
 	
 	public boolean getDone() {
 		return done;
@@ -39,12 +34,14 @@ public class ContaGetter implements Runnable{
 		this.stop = stop;
 	}
 	
-	public ContaGetter(String cdc, String dv, String[] info) {
+	public ContaGetter(String cdc, String dv, String[] info, WebManager w, int n) {
 		this.cdc = cdc;
 		this.dv = dv;
 		this.info = info;
 		done = false;
 		stop = false;
+		this.w = w;
+		this.n = n;
 		//pbf = new ProgressBarFiller(this);
 		//pbf.start();
 	}
@@ -54,14 +51,16 @@ public class ContaGetter implements Runnable{
 		try {
 			info = getConta(cdc, dv);	
 		}catch(TimeoutException ex) {
-			System.out.println("OWWWWWWWWWWWWUWUWUWBUEBUE");
+			System.out.println("Timeout in run() from ContaGetter");
 			throw ex;
 		}
 		System.out.println(info[0]);
 		done = true;
+		w.d[n] = true;
 		while(!stop) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(3000);
+				Thread.yield();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -78,24 +77,30 @@ public class ContaGetter implements Runnable{
 			try {
 				t.run();
 			}catch(TimeoutException ex) {
-				System.out.println("UAUAUAUAUAUAUAUAUAUuuuuuuuu");
+				System.out.println("Timeout in start() from ContaGetter");
 				throw ex;
 			}
 		}
 	}
 	
 	String[] getConta(String cdc, String dv) throws TimeoutException{
+		System.setProperty("webdriver.gecko.driver", "geckodriver.exe");
 		WebDriver driver = getFirefoxDriver();
+	
 		
 		driver.get("http://aguaconta.cebinet.com.br/aguasc/");
 		WebElement tCdc = driver.findElement(By.id("tCDC"));
 		WebElement tDv = driver.findElement(By.id("tDV"));
-		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		tCdc.sendKeys(cdc);
 		tDv.sendKeys(dv);
 		
 		driver.findElement(By.id("tIr")).click();
-		progress = 10;
 		
 		@SuppressWarnings("unused")
 		WebDriverWait wait = new WebDriverWait(driver, 30) {
@@ -115,16 +120,15 @@ public class ContaGetter implements Runnable{
 			throw ex;
 		}
 		driver.findElement(By.id("hlConta")).click();
-		progress = 30;
 		
 		try {
-			myDynamicElement = (new WebDriverWait(driver, 5)).until(ExpectedConditions.presenceOfElementLocated(By.linkText(Utils.findDate())));
+			System.out.println(Utils.findDate());
+			myDynamicElement = (new WebDriverWait(driver, 15)).until(ExpectedConditions.presenceOfElementLocated(By.linkText(Utils.findDate())));
 		}catch(TimeoutException ex) {
-			System.out.println("OWWWWWWWWW");
+			System.out.println("Timeout waiting to find the date link");
 			throw ex;
 		}
 		driver.findElement(By.linkText(Utils.findDate())).click();
-		progress = 50;
 		
 		String winHandleBefore = driver.getWindowHandle();
 		
@@ -134,27 +138,22 @@ public class ContaGetter implements Runnable{
 	   
 		myDynamicElement = (new WebDriverWait(driver, 30)).until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[4]/div")));
 	    String total = driver.findElement(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[4]/div")).getText();
-	    String multaText = "Multa por atraso";
+	    String multaText = "Multa";
 	    String multaValue = null;
-	    progress = 70;
-	    
-	    if(driver.getPageSource().contains(multaText)) {
-	    		multaValue = driver.findElement(By.xpath("//table[@id='Table6']/tbody/tr[4]/td[6]")).getText();
-	    }
 	    
 	    String vencimento = driver.findElement(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[2]/div")).getText();
-	    progress = 90;
-	    System.out.println(multaValue);
-		
-		driver.close();
-		driver.switchTo().window(winHandleBefore).close();
 		
 		String[] values = new String[4];
 		values[0] = total;
-		values[1] = multaValue;
-		values[2] = calculateShare(total, 15, multaValue);
 		values[3] = vencimento;
-		progress = 100;
+		
+		String multa = findMulta(driver.getPageSource());
+		System.out.println("Multa -> " + multa);
+		values[1] = multa;
+		values[2] = calculateShare(total, 15, multa);
+		
+		driver.close();
+		driver.switchTo().window(winHandleBefore).close();
 		
 		return values;
 	}
@@ -175,6 +174,34 @@ public class ContaGetter implements Runnable{
 		WebDriver driver = new FirefoxDriver(options);
 		
 		return driver;
+	}
+	
+	String findMulta(String content) {
+		int fromIndex = 0, valueIndex;
+		String str = "Multa", valueStr;
+		double multa = 0;
+		
+		fromIndex = content.indexOf(str, fromIndex);
+		while(fromIndex != -1) {
+			valueIndex = content.indexOf(",", fromIndex)-2;
+			valueStr = content.substring(valueIndex, valueIndex+5);
+			valueStr = valueStr.replace(",", ".");
+			try {
+				System.out.println("valueStr = " + valueStr);
+				Double.parseDouble(valueStr);
+			}catch(NumberFormatException e) {
+				System.out.println("In catch");
+				valueStr = valueStr.substring(1);
+			}
+//			if(valueStr.charAt(0) < 48 || content.charAt(0) > 57) {
+//				System.out.println("valueStr = " + valueStr);
+//				valueStr = valueStr.substring(1);
+//			}
+			multa += Double.valueOf(valueStr);
+			fromIndex = content.indexOf(str, fromIndex+1);
+		}
+		
+		return String.valueOf(multa);
 	}
 
 }
