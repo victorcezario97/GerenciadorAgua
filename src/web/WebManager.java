@@ -2,6 +2,10 @@ package web;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
@@ -11,62 +15,41 @@ import org.openqa.selenium.TimeoutException;
 import utils.Utils;
 
 public class WebManager{
-	
+
 	JProgressBar pb;
 	public int progress;
-	private ContaGetter cg1, cg2;
+	private ContaGetterCallable cg1, cg2;
 	private String[] s1 = null, s2 = null;
 	public boolean[] d;
-	
+
 	public String[] start() {
 		return getTotals();
 	}
-	
+
 
 	public String[] getTotals() {
-		
+
 		boolean done1 = false, done2 = false, error = false;
 		d = new boolean[2];
 		d[0] = false; d[1] = false;
-		
-		ContaGetter cg1 = new ContaGetter("18449", "79", s1, this, 0);
-		ContaGetter cg2 = new ContaGetter("58292", "16", s2, this, 1);
-		//ProgressBarFiller pbf1 = new ProgressBarFiller(cg1);
-		//ProgressBarFiller pbf2 = new ProgressBarFiller(cg2);
-		//pbf1.start();
-		//pbf2.start();
-		Thread t1 = new Thread(cg1);
-		Thread t2 = new Thread(cg2);
-		try {
-			t1.start();
-		}catch(TimeoutException e) {
-			System.out.println("Timeout in t1.start() from WebManager");
-			t1.interrupt();
-			error = true;
-		}
+
+		cg1 = new ContaGetterCallable("18449", "79", s1, this, 0);
+		cg2 = new ContaGetterCallable("58292", "16", s2, this, 1);
+		ExecutorService pool = Executors.newFixedThreadPool(2);
+		Future<Integer> future = pool.submit(cg1);
+		Future<Integer> future2 = pool.submit(cg2);
 
 		try {
-			t2.start();
-		}catch(TimeoutException e) {
-			System.out.println("Timeout in t2.start() from WebManager");
-			t2.interrupt();
-			error = true;
+			int a = future.get();
+			int b = future2.get();
+		}catch(InterruptedException e){
+			System.out.println("interrupted");
+			return null;
+		}catch(ExecutionException e){
+			System.out.println("execution");
+			return null;
 		}
-		
-		if(error) return null;
-		
-		long prev = System.currentTimeMillis();
-		long cur;
-		while(!(d[0] & d[1])) { 
-			done1 = cg1.getDone();
-			done2 = cg2.getDone();
-			cur = System.currentTimeMillis();
-			if(cur - prev > 1000) {
-				System.out.println();
-				prev = cur;
-			}
-			
-		}
+		System.out.println("No exceptions in ContaGetterCallable");
 		
 		s1 = cg1.getInfo();
 		s2 = cg2.getInfo();
