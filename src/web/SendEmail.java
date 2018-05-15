@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 
 public class SendEmail {
 	
-	public static int send() throws IOException {
+	public static void send() throws IOException {
 		Process process = new ProcessBuilder("sendEmail.exe", "-o", "tls=yes", "-f", "victorscezario97@gmail.com", "-t", "victorscezario@hotmail.com", "-s", "smtp.gmail.com:587", "-xu", "victorscezario97@gmail.com", "-xp", "kartoffel97", "-u", "\"Hello from sendEmail\"", "-m", "\"How are you? I'm testing sendEmail from the command line.\"").start();
 		InputStream is = process.getInputStream();
 		InputStreamReader isr = new InputStreamReader(is);
@@ -19,12 +19,6 @@ public class SendEmail {
 		while ((line = br.readLine()) != null) {
 		  System.out.println(line);
 		}
-
-		
-		
-		
-		
-		return 0;
 	}
 	
 	public static void send(String message, String from, String password, String to, String subject) throws IOException {

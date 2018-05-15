@@ -24,9 +24,6 @@ import utils.Files;
 import utils.Utils;
 
 import javax.swing.JTextPane;
-import javax.swing.JProgressBar;
-import javax.swing.JTextArea;
-import java.awt.Color;
 import java.awt.SystemColor;
 
 public class MainWindow extends JFrame {
@@ -151,7 +148,6 @@ public class MainWindow extends JFrame {
 				try {
 					text = Files.readFile("emailBody.txt");
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					JOptionPane.showMessageDialog(contentPane, "Email body file not found.", "File Warning", JOptionPane.WARNING_MESSAGE);
 					btnEnviarEmail.setEnabled(true);
 					btnNovaConta.setEnabled(true);
@@ -161,7 +157,6 @@ public class MainWindow extends JFrame {
 				contentPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				
 				WebManager w = new WebManager();
-				//w.start();
 				String[] totals = w.getTotals();
 				if(totals == null) {
 					System.out.println("Caught error");
@@ -204,7 +199,6 @@ public class MainWindow extends JFrame {
 				try {
 					SendEmail.send(tpMensagem.getText(), from, password, to, subject);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 					JOptionPane.showMessageDialog(contentPane, "An error occurred while sending the e-mail.", "ERROR", JOptionPane.ERROR_MESSAGE);
 					contentPane.setCursor(Cursor.getDefaultCursor());

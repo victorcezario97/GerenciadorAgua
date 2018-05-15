@@ -1,24 +1,28 @@
 Selecionar o pagador da multa
-	Ao enviar, salvar o nome em um arquivo e usá-lo como padrão para a próxima vez que o programa abrir
+	Ao enviar, salvar o nome em um arquivo e usa-lo como padrao para a proxima vez que o programa abrir
 
 Envio de email
 	Usar API da Google (Muito dificil)
 	
 Salvar PDF da conta
-Guardar informações das contas em um arquivo(total, multa, dividido) caso nao dê
+Guardar informacoes das contas em um arquivo(total, multa, dividido) caso nao de
 
 Alterar quantidade de moradores
 	Salvar em um arquivo
 	Campo de texto
 
 Alterar quantidade de registros / Alterar CDC e DV dos registros
-	Fazer um arquivo com as informações e ler ao executar (mesmo do numero de moradores)
+	Fazer um arquivo com as informacoes e ler ao executar (mesmo do numero de moradores)
 		Modelo:
 			2 (Quantidade de registros)
 			18449;79 (CDC;DV)
 			58292;16
-	Fazer a auteração do arquivo direto pela aplicação
+	Fazer a auteracao do arquivo direto pela aplicação
 		Criar uma tela para editar e salvar
+		
+Implementar algum tipo de feedback enquanto o programa roda
+	imprimir mensagens do console
+	barra de progresso
 
 ######################################
 

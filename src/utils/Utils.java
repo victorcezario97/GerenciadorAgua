@@ -79,11 +79,4 @@ public class Utils {
 			
 		}
 	}
-	
-//	double getDoubleValue(String str) {
-//		double value;
-//		
-//		str.replace(",", ".");
-//		
-//	}
 }

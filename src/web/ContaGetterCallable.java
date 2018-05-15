@@ -14,13 +14,18 @@ import utils.Utils;
 
 import java.util.concurrent.Callable;
 
+@SuppressWarnings("rawtypes")
 public class ContaGetterCallable implements Callable {
 
-    private Thread t;
     private String cdc, dv;
+    /*
+     * [0] = total
+     * [1] = multa
+     * [2] = dividido
+     * [3] = vencimento
+     */
     private String[] info;
     private boolean done;
-    private boolean stop;
     private WebManager w;
     private int n;
 
@@ -32,20 +37,13 @@ public class ContaGetterCallable implements Callable {
         return info;
     }
 
-    public void setStop(boolean stop) {
-        this.stop = stop;
-    }
-
     public ContaGetterCallable(String cdc, String dv, String[] info, WebManager w, int n) {
         this.cdc = cdc;
         this.dv = dv;
         this.info = info;
         done = false;
-        stop = false;
         this.w = w;
         this.n = n;
-        //pbf = new ProgressBarFiller(this);
-        //pbf.start();
     }
 
     @Override
@@ -59,16 +57,6 @@ public class ContaGetterCallable implements Callable {
         System.out.println(info[0]);
         done = true;
         w.d[n] = true;
-        /*while(!stop) {
-            try {
-                Thread.sleep(3000);
-                Thread.yield();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            System.out.println(dv + " waiting");
-        }*/
         System.out.println(dv + " done");
         return 0;
     }
@@ -79,31 +67,26 @@ public class ContaGetterCallable implements Callable {
 
 
         driver.get("http://aguaconta.cebinet.com.br/aguasc/");
+        
+        //Page 1
+        //Insert CDC and DV and click button Ir
         WebElement tCdc = driver.findElement(By.id("tCDC"));
         WebElement tDv = driver.findElement(By.id("tDV"));
         try {
-            Thread.sleep(3000);
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         tCdc.sendKeys(cdc);
         tDv.sendKeys(dv);
 
         driver.findElement(By.id("tIr")).click();
-
+        
+        
+        //Page 2
+        //Click 'Segunda via'
         @SuppressWarnings("unused")
-        WebDriverWait wait = new WebDriverWait(driver, 30) {
-            @Override
-            protected java.lang.RuntimeException timeoutException(java.lang.String message,
-                                                                  java.lang.Throwable lastException){
-
-                TimeoutException ex = new TimeoutException();
-
-                throw ex;
-            }
-        };
-        WebElement myDynamicElement;
+		WebElement myDynamicElement;
         try {
             myDynamicElement = (new WebDriverWait(driver, 10)).until(ExpectedConditions.presenceOfElementLocated(By.id("hlConta")));
         }catch(TimeoutException ex) {
@@ -112,8 +95,11 @@ public class ContaGetterCallable implements Callable {
         }
         driver.findElement(By.id("hlConta")).click();
 
+        
+        //Page 3
+        //Find the date corresponding to the current month and click on it
         try {
-            System.out.println(Utils.findDate());
+            //System.out.println(Utils.findDate());
             myDynamicElement = (new WebDriverWait(driver, 15)).until(ExpectedConditions.presenceOfElementLocated(By.linkText(Utils.findDate())));
         }catch(TimeoutException ex) {
             System.out.println("Timeout waiting to find the date link");
@@ -122,27 +108,34 @@ public class ContaGetterCallable implements Callable {
         }
         driver.findElement(By.linkText(Utils.findDate())).click();
 
+        
+        //Page 4
+        //Switch handle to the bill page that opened and get all the values
         String winHandleBefore = driver.getWindowHandle();
 
         for(String winHandle : driver.getWindowHandles()) {
             if(!winHandle.equalsIgnoreCase(winHandleBefore)) driver.switchTo().window(winHandle);
         }
 
+        //Finding total
         myDynamicElement = (new WebDriverWait(driver, 30)).until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[4]/div")));
         String total = driver.findElement(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[4]/div")).getText();
-        String multaText = "Multa";
-        String multaValue = null;
 
+        //Finding due date
         String vencimento = driver.findElement(By.xpath("/html/body/form/p[1]/table[11]/tbody/tr/td[2]/div")).getText();
 
+        //Finding late fee
+        String multa = findMulta(driver.getPageSource());
+        //System.out.println("Multa -> " + multa);
+        
+        //Calculating shared value
+        String share = calculateShare(total, 15, multa);
+        
         String[] values = new String[4];
         values[0] = total;
-        values[3] = vencimento;
-
-        String multa = findMulta(driver.getPageSource());
-        System.out.println("Multa -> " + multa);
         values[1] = multa;
-        values[2] = calculateShare(total, 15, multa);
+        values[2] = share;
+        values[3] = vencimento;
 
         driver.close();
         driver.switchTo().window(winHandleBefore).close();
@@ -185,10 +178,7 @@ public class ContaGetterCallable implements Callable {
                 System.out.println("In catch");
                 valueStr = valueStr.substring(1);
             }
-//			if(valueStr.charAt(0) < 48 || content.charAt(0) > 57) {
-//				System.out.println("valueStr = " + valueStr);
-//				valueStr = valueStr.substring(1);
-//			}
+            
             multa += Double.valueOf(valueStr);
             fromIndex = content.indexOf(str, fromIndex+1);
         }

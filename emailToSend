@@ -1,1 +1,0 @@
-sendEmail -o tls=yes -f victorscezario97@gmail.com -t victorscezario@hotmail.com -s smtp.gmail.com:587 -xu victorscezario97@gmail.com -xp kartoffel97 -u "Hello from sendEmail" -m "How are you? I'm testing sendEmail from the command line."
