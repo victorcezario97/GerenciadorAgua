@@ -1,5 +1,10 @@
 package utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
@@ -78,5 +83,30 @@ public class Utils {
 			return "ERROR";
 			
 		}
+	}
+	
+	/*
+	 * [0] = sender
+	 * [1] = receiver
+	 * [2] = sender
+	 * [3] = password
+	 */
+	public static String []emailFile(File filename) throws IOException{
+		BufferedReader br;
+		String []strings;
+		
+		try {
+			br = new BufferedReader(new FileReader(filename));
+		}catch(FileNotFoundException e) {
+			System.out.println("Email config file not found.");
+			return null;
+		}
+		
+		String str = br.readLine();
+		strings = str.split(";");
+		
+		br.close();
+		
+		return strings;
 	}
 }

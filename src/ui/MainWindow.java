@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -191,13 +192,11 @@ public class MainWindow extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
 				contentPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				String from = "victorscezario97@gmail.com";
-				String password = "kartoffel97";
-				String to = "victorscezario@hotmail.com";
-				String subject = tfAssunto.getText();
+
 				try {
-					SendEmail.send(tpMensagem.getText(), from, password, to, subject);
+					SendEmail.send(new File("emailconfig"), tfAssunto.getText(), tpMensagem.getText());
 				} catch (IOException e1) {
 					e1.printStackTrace();
 					JOptionPane.showMessageDialog(contentPane, "An error occurred while sending the e-mail.", "ERROR", JOptionPane.ERROR_MESSAGE);
