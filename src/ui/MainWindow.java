@@ -136,6 +136,10 @@ public class MainWindow extends JFrame {
 		lblConsole.setBounds(10, 341, 645, 16);
 		contentPane.add(lblConsole);
 		
+		JButton btnEmailconfig = new JButton("Email Configuration");
+		btnEmailconfig.setBounds(506, 11, 149, 23);
+		contentPane.add(btnEmailconfig);
+		
 		btnNovaConta.addActionListener(new ActionListener() {
 			
 			@Override
@@ -206,6 +210,17 @@ public class MainWindow extends JFrame {
 				
 				JOptionPane.showMessageDialog(contentPane, "Email sent succesfully!", "SUCCESS", JOptionPane.INFORMATION_MESSAGE);
 				contentPane.setCursor(Cursor.getDefaultCursor());
+			}
+		});
+		
+		btnEmailconfig.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				EmailConfiguration ec = new EmailConfiguration();
+				
+				
 			}
 		});
 	}

@@ -23,6 +23,9 @@ Alterar quantidade de registros / Alterar CDC e DV dos registros
 Implementar algum tipo de feedback enquanto o programa roda
 	imprimir mensagens do console
 	barra de progresso
+	
+BUGS
+	Clicar em enviar email sem mensagem trava o programa
 
 ######################################
 
